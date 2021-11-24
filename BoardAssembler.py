@@ -6,6 +6,8 @@ import random
 from typing import Final, List, Tuple
 from dataclasses import dataclass
 
+import numpy as np
+
 SQUARE_DATA_LIST = [('My mind is telling me no...', 'Åpenbar fristelse som går dårlig.'),
 ('No Control Wards', 'Du/noen på laget har ikke kjøpt control wards.'),
 ('Weird Sum. Names', 'SpaceFart; HecarimDidNothingWrong; AverageAhriAhegaoEnjoyer'),
@@ -53,6 +55,10 @@ BASE_TEXT_OFFSET: Final = (10, 20)
 BASE_BOARD_SIZE: Final = (
     BASE_SQUARE_SIZE[0] * BASE_GRID_SIZE[0] + (BASE_GRID_SIZE[0] + 1) * BASE_BORDER_WIDTH,
     BASE_SQUARE_SIZE[1] * BASE_GRID_SIZE[1] + (BASE_GRID_SIZE[1] + 1) * BASE_BORDER_WIDTH)
+
+WIN_REQUIREMENT = 3
+
+winCheckBaseBoard = np.zeros(BASE_GRID_SIZE)
 
 def AssembleBoard():
     board = Image.new('RGB', BASE_BOARD_SIZE, Color.getrgb("cyan"))
@@ -111,6 +117,36 @@ def makeTextMultiline(text: str, drawingBoard: Draw.ImageDraw):
     outText = " ".join(splitText)
     return outText.replace(" \n", "\n")
 
+
+def checkIfWon(markedIndexes):
+    winCheck = winCheckBaseBoard.copy()
+    for index in markedIndexes:
+        winCheck[index[0]][index[1]] = 1
+    print(winCheck)
+    for i in range(len(winCheck[0])):
+        if checkSubListForWin(winCheck[i, :]):
+            return True
+    for i in range(len(winCheck)):
+        if checkSubListForWin(winCheck[:, i]):
+            return True
+    diags = [winCheck[::-1, :].diagonal(i) for i in range(-winCheck.shape[0] + 1, winCheck.shape[1])]
+    diags.extend(winCheck.diagonal(i) for i in range(winCheck.shape[1] - 1, -winCheck.shape[0], -1))
+    for diag in diags:
+        if checkSubListForWin(diag):
+            return True
+    return False
+
+
+def checkSubListForWin(subList):
+    consequtive = 0
+    for i in subList:
+        if i == 1:
+            consequtive += 1
+            if consequtive >= WIN_REQUIREMENT:
+                return True
+        else:
+            consequtive = 0
+    return False
 
 def indexToCoordinates(index, offset=(0, 0)):
     return (index[0] * BASE_SQUARE_SIZE[0] + (index[0] + 1) * BASE_BORDER_WIDTH + offset[0],
