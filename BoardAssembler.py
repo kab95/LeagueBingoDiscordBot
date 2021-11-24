@@ -8,7 +8,7 @@ from dataclasses import dataclass
 
 SQUARE_DATA_LIST = [('My mind is telling me no...', 'Åpenbar fristelse som går dårlig.'),
 ('No Control Wards', 'Du/noen på laget har ikke kjøpt control wards.'),
-('Wierd Sum. Names', 'SpaceFart; HecarimDidNothingWrong; AverageAhriAhegaoEnjoyer'),
+('Weird Sum. Names', 'SpaceFart; HecarimDidNothingWrong; AverageAhriAhegaoEnjoyer'),
 ('Spam ? Ping', 'Spam av missing pings.'),
 ('FF 15 vote', 'FF 15 vote.'),
 ('Polar-Opposites', 'Ha en teamfight hvor alle går hver sin vei.'),
@@ -34,11 +34,11 @@ SQUARE_DATA_LIST = [('My mind is telling me no...', 'Åpenbar fristelse som går
 
 @dataclass
 class SquareData:
-    DisplayName: str
-    Description: str
+    displayName: str
+    description: str
 
     def GenerateKeyWords(self):
-        self.KeyWords = self.DisplayName.split(" ")
+        self.keyWords = self.displayName.strip(".,/!+\"/").replace("-", " ").lower().split(" ")
 
 
 BASE_SQUARE_SIZE: Final = (120, 80)
@@ -70,7 +70,7 @@ def AssembleBoard():
     random.shuffle(squareDataList)
     drawSquareValues(squareDataList, drawingBoard)
 
-    return board
+    return board, squareDataList
 
 
 def PopulateDataList():
@@ -86,10 +86,10 @@ def drawSquareValues(squareDataList: List[SquareData], drawingBoard: Draw):
     totalSquares: Final = BASE_GRID_SIZE[0] * BASE_GRID_SIZE[1]
     squaresToDraw = squareDataList[:totalSquares]
     for i in range(totalSquares):
-        index = (i % BASE_GRID_SIZE[0], i // BASE_GRID_SIZE[0])
+        index = listIndexToGridIndex(i)
         coords = indexToCoordinates(index, BASE_TEXT_OFFSET)
         curData = squaresToDraw.pop(0)
-        displayText = makeTextMultiline(curData.DisplayName, drawingBoard)
+        displayText = makeTextMultiline(curData.displayName, drawingBoard)
         drawingBoard.multiline_text(coords, displayText, BASE_TEXT_COLOR, BASE_TEXT_FONT)
         print(f"{index}, {coords}")
 
@@ -116,8 +116,12 @@ def indexToCoordinates(index, offset=(0, 0)):
     return (index[0] * BASE_SQUARE_SIZE[0] + (index[0] + 1) * BASE_BORDER_WIDTH + offset[0],
             index[1] * BASE_SQUARE_SIZE[1] + (index[1] + 1) * BASE_BORDER_WIDTH + offset[1])
 
+def listIndexToGridIndex(listIndex):
+    return (listIndex % BASE_GRID_SIZE[0], listIndex // BASE_GRID_SIZE[0])
 
-def MarkSquare(index, drawingBoard):
+
+def MarkSquare(index, board):
+    drawingBoard = Draw.Draw(board)
     squareOrigin = indexToCoordinates(index)
     squareBounds = (squareOrigin[0] + BASE_SQUARE_SIZE[0], squareOrigin[1] + BASE_SQUARE_SIZE[1])
     drawingBoard.ellipse([squareOrigin, squareBounds], None, BASE_MARKER_COLOR, BASE_MARKER_WIDTH)
@@ -126,7 +130,6 @@ def MarkSquare(index, drawingBoard):
 if __name__ == '__main__':
     print('Testing board assembler...')
     board = AssembleBoard()
-    drawingBoard = Draw.Draw(board)
-    MarkSquare((1, 1), drawingBoard)
-    MarkSquare((3, 4), drawingBoard)
+    MarkSquare((1, 1), board)
+    MarkSquare((3, 4), board)
     board.show()
