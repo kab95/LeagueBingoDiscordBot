@@ -142,4 +142,4 @@ async def on_message(message):
     if message.content.startswith('!b'):
         await currentGame.markSquares(message.content.lstrip("!b").strip(" ").lower())
 
-client.run('OTEzMDM2MTc0NDY0MDA4MjYy.YZ4pMw.SWO9tESD0eMKryrpr1YgrtbxMcQ')
+client.run('')
