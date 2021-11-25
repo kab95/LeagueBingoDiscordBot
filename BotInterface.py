@@ -10,11 +10,12 @@ NEW_GAME_INIT_TIME = 60
 ORDINAL = lambda n: "%d%s" % (n,"tsnrhtdd"[(n//10%10!=1)*(n%10<4)*n%10::4])
 
 class Player:
-    markedIndexes = []
 
     def __init__(self, author: discord.User):
         self.player = author
         self.board, self.squares = BoardAssembler.AssembleBoard()
+        self.markedIndexes = []
+        self.boardFileName = ""
         self.save()
 
     def __eq__(self, other):
@@ -70,6 +71,7 @@ class Game:
         await self.gameChannel.send('Sent updated board to all available participants')
 
     async def gameWon(self, player: Player):
+        await self.gameChannel.send(file=player.getTransmissibleFile())
         await self.gameChannel.send(f'{player.player.display_name} has completed a board!')
         self.wonPlayers.append(player)
         await self.gameChannel.send(f'{player.player.display_name} was the {ORDINAL(len(self.wonPlayers))} winner!')
@@ -140,4 +142,4 @@ async def on_message(message):
     if message.content.startswith('!b'):
         await currentGame.markSquares(message.content.lstrip("!b").strip(" ").lower())
 
-client.run('')
+client.run('OTEzMDM2MTc0NDY0MDA4MjYy.YZ4pMw.SWO9tESD0eMKryrpr1YgrtbxMcQ')

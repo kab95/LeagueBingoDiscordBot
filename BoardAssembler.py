@@ -7,6 +7,7 @@ from typing import Final, List, Tuple
 from dataclasses import dataclass
 
 import numpy as np
+import copy
 
 SQUARE_DATA_LIST = [('My mind is telling me no...', 'Åpenbar fristelse som går dårlig.'),
 ('No Control Wards', 'Du/noen på laget har ikke kjøpt control wards.'),
@@ -119,7 +120,7 @@ def makeTextMultiline(text: str, drawingBoard: Draw.ImageDraw):
 
 
 def checkIfWon(markedIndexes):
-    winCheck = winCheckBaseBoard.copy()
+    winCheck = copy.deepcopy(winCheckBaseBoard)
     for index in markedIndexes:
         winCheck[index[0]][index[1]] = 1
     print(winCheck)
